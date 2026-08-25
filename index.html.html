@@ -1,0 +1,338 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Prompt 蒐集站 · Scratch × Gemini 創作營</title>
+<style>
+  :root{
+    --ink:#1E2647; --pur:#6C5CE7; --blu:#2E86DE; --teal:#12B5A5;
+    --gold:#F5A623; --coral:#EE5A8A; --light:#F4F5FB; --muue:#6C7291;
+    --card:#FFFFFF; --line:#E2E5F2;
+  }
+  *{box-sizing:border-box;}
+  body{margin:0;font-family:"Microsoft JhengHei","PingFang TC","Noto Sans TC",system-ui,sans-serif;
+    background:var(--light);color:var(--ink);line-height:1.6;}
+  header{background:var(--ink);color:#fff;padding:26px 20px 30px;position:relative;overflow:hidden;}
+  header .deco{position:absolute;border-radius:50%;opacity:.5;}
+  h1{margin:0;font-size:30px;display:flex;align-items:center;gap:12px;position:relative;}
+  .sub{margin:6px 0 0;color:#CDD2EC;font-size:15px;position:relative;}
+  .badge{display:inline-block;background:var(--gold);color:var(--ink);font-weight:800;border-radius:10px;padding:6px 12px;font-size:15px;}
+  .wrap{max-width:960px;margin:0 auto;padding:20px 16px 60px;}
+  .note{background:#FFF6E5;border:1px solid #F5D48A;color:#8a5a00;border-radius:12px;padding:12px 16px;margin:18px 0;font-size:14px;}
+  .cloudstat{border-radius:12px;padding:10px 16px;margin:12px 0;font-size:14px;font-weight:700;}
+  .cloud-on{background:#E3F7F1;border:1px solid #8FD9C6;color:#0b6b56;}
+  .cloud-off{background:#FDEBEF;border:1px solid #F3B6C6;color:#a12b4c;}
+  .grid{display:grid;grid-template-columns:1fr 1fr;gap:16px;}
+  @media(max-width:720px){.grid{grid-template-columns:1fr;}}
+  .panel{background:var(--card);border:1px solid var(--line);border-radius:16px;padding:18px;box-shadow:0 6px 18px rgba(120,120,160,.10);}
+  .panel h2{margin:0 0 12px;font-size:19px;display:flex;align-items:center;gap:8px;}
+  .dot{width:14px;height:14px;border-radius:50%;display:inline-block;}
+  label{display:block;font-weight:700;font-size:14px;margin:12px 0 5px;}
+  .hint{font-weight:400;color:var(--muue);font-size:12.5px;}
+  input[type=text],textarea,select{width:100%;border:1.5px solid var(--line);border-radius:10px;padding:9px 11px;font-size:15px;font-family:inherit;background:#fff;color:var(--ink);}
+  textarea{resize:vertical;min-height:52px;}
+  input:focus,textarea:focus,select:focus{outline:none;border-color:var(--pur);}
+  .row{display:flex;gap:10px;flex-wrap:wrap;}
+  .row>div{flex:1;min-width:130px;}
+  .preview{background:var(--ink);color:#EAECF7;border-radius:12px;padding:14px;font-size:14.5px;white-space:pre-wrap;min-height:90px;margin-top:6px;}
+  .btn{border:none;border-radius:10px;padding:11px 16px;font-size:15px;font-weight:800;cursor:pointer;font-family:inherit;transition:transform .05s;}
+  .btn:active{transform:scale(.97);}
+  .btn.primary{background:var(--pur);color:#fff;}
+  .btn.teal{background:var(--teal);color:#fff;}
+  .btn.blu{background:var(--blu);color:#fff;}
+  .btn.ghost{background:#fff;color:var(--pur);border:1.5px solid var(--pur);}
+  .btn.mini{padding:6px 11px;font-size:13px;font-weight:700;}
+  .btn.red{background:#fff;color:var(--coral);border:1.5px solid var(--coral);}
+  .btn[disabled]{opacity:.45;cursor:not-allowed;}
+  .toolbar{display:flex;gap:10px;flex-wrap:wrap;align-items:center;margin:20px 0 12px;}
+  .count{font-weight:800;color:var(--pur);}
+  .cards{display:flex;flex-direction:column;gap:14px;}
+  .pcard{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:15px;box-shadow:0 4px 14px rgba(120,120,160,.08);}
+  .pcard .top{display:flex;justify-content:space-between;align-items:center;gap:10px;flex-wrap:wrap;}
+  .pcard .title{font-weight:800;font-size:16px;}
+  .tag{font-size:12px;font-weight:800;border-radius:20px;padding:3px 11px;color:#fff;}
+  .sentbadge{font-size:12px;font-weight:800;color:#0b6b56;background:#E3F7F1;border-radius:20px;padding:3px 10px;}
+  .pcard .body{margin:10px 0 12px;white-space:pre-wrap;font-size:14.5px;color:#333a5a;background:var(--light);border-radius:10px;padding:11px 13px;}
+  .pcard .acts{display:flex;gap:8px;flex-wrap:wrap;}
+  .empty{text-align:center;color:var(--muue);padding:34px 10px;font-size:15px;}
+  details{background:#fff;border:1px solid var(--line);border-radius:12px;padding:6px 14px;margin-top:14px;}
+  summary{cursor:pointer;font-weight:800;padding:8px 0;}
+  .ex{border-top:1px dashed var(--line);padding:10px 0;font-size:14px;}
+  .ex b{color:var(--pur);}
+  .setup p{font-size:13.5px;color:#444a66;}
+  footer{max-width:960px;margin:0 auto;padding:0 16px 40px;color:var(--muue);font-size:13px;text-align:center;}
+  @media print{ header,.note,.cloudstat,.panel.form,.toolbar,details,footer{display:none!important;} .btn{display:none!important;} body{background:#fff;} .pcard{break-inside:avoid;border:1px solid #999;} }
+</style>
+</head>
+<body>
+<header>
+  <div class="deco" style="width:180px;height:180px;background:#6C5CE7;right:-40px;top:-60px;"></div>
+  <div class="deco" style="width:120px;height:120px;background:#12B5A5;left:-30px;bottom:-50px;opacity:.4;"></div>
+  <div class="wrap" style="padding-bottom:0;">
+    <h1>🗂️ Prompt 蒐集站</h1>
+    <p class="sub">把你用過、覺得好用的 Prompt 存起來,還能一鍵送到老師的雲端。</p>
+    <p style="position:relative;margin-top:12px;"><span class="badge">Scratch × Gemini 創作營</span></p>
+  </div>
+</header>
+
+<div class="wrap">
+  <div id="cloudstat" class="cloudstat cloud-off">☁️ 尚未連結老師的 Google 表單 —— 送出功能暫時關閉(老師可到最下面「老師設定」連結表單)。</div>
+
+  <div class="grid">
+    <!-- 左:輸入 -->
+    <div class="panel form">
+      <h2><span class="dot" style="background:var(--pur)"></span> 用四元素寫一個 Prompt</h2>
+      <div class="row">
+        <div>
+          <label>這是哪個專案?</label>
+          <select id="proj"><option>接接樂遊戲</option><option>互動故事</option><option>其他</option></select>
+        </div>
+        <div>
+          <label>幫它取個名字 <span class="hint">(方便之後找)</span></label>
+          <input id="title" type="text" placeholder="例:讓遊戲更好玩">
+        </div>
+      </div>
+      <label>① 我在做什麼?</label>
+      <textarea id="f1" placeholder="我在做一個 Scratch 接東西遊戲……"></textarea>
+      <label>② 角色 / 情境是什麼?</label>
+      <textarea id="f2" placeholder="玩家用左右鍵接星星,接到加分……"></textarea>
+      <label>③ 我的限制</label>
+      <textarea id="f3" placeholder="要簡單、國小做得出來、先不要太難……"></textarea>
+      <label>④ 我希望 AI 怎麼幫?</label>
+      <textarea id="f4" placeholder="請給我 3 個點子,先不要幫我寫程式……"></textarea>
+      <label>一鍵組合預覽</label>
+      <div class="preview" id="preview">（在上面填一填,這裡會自動組合成一段 Prompt）</div>
+      <div class="row" style="margin-top:14px;">
+        <button class="btn ghost" style="flex:1" onclick="copyText(document.getElementById('preview').innerText)">📋 複製組合</button>
+        <button class="btn primary" style="flex:1" onclick="addPrompt()">📤 送出(自動收進雲端)</button>
+      </div>
+    </div>
+
+    <!-- 右:蒐集清單 -->
+    <div class="panel">
+      <h2><span class="dot" style="background:var(--teal)"></span> 我的 Prompt 蒐集 <span class="count" id="count">(0)</span></h2>
+      <label>你的名字 / 組別 <span class="hint">(送到老師雲端時會一起送出;選填)</span></label>
+      <input id="who" type="text" placeholder="例:五年三班 · 小安">
+      <div class="toolbar">
+        <button class="btn teal mini" onclick="downloadAll()">⬇️ 全部下載</button>
+        <button class="btn ghost mini" onclick="window.print()">🖨️ 列印</button>
+      </div>
+      <div class="cards" id="cards">
+        <div class="empty" id="empty">還沒有蒐集喔!<br>在左邊填一填,按「加入蒐集」試試看 😊</div>
+      </div>
+    </div>
+  </div>
+
+  <details>
+    <summary>💡 看看範例 Prompt(可以參考,再改成自己的)</summary>
+    <div class="ex"><b>接接樂遊戲:</b>「我做了一個 Scratch 接東西遊戲,玩家用左右鍵接星星,接到加分、漏接扣命。請給我 3 個讓它更好玩的點子,要簡單、國小做得出來,先不要幫我寫程式。」</div>
+    <div class="ex"><b>互動故事:</b>「我的 Scratch 互動故事,主角是想飛的企鵝,現在有 2 個結局。請幫我想 1 個新的選擇和它的結局,要溫暖、2～3 句就好,先不要幫我寫程式。」</div>
+  </details>
+
+  <details class="setup">
+    <summary>⚙️ 老師設定:連到 Google 表單(只需做一次)</summary>
+    <p>1. 建一個 Google 表單,3 個「簡答」問題,順序:<b>專案 / 標題 / Prompt 內容</b>(想收姓名就加第 4 題)。<br>
+       2. 右上 ⋮ →「取得預先填入的連結」→ 在預覽裡填範例字:專案=<b>PROJ</b>、標題=<b>TITLE</b>、內容=<b>BODY</b>、(姓名=<b>NAME</b>)→ 取得連結 → 複製。<br>
+       3. 把連結貼到下面,按「套用」。設定會存進這個檔案畫面,學生就能按「送出」。</p>
+    <label>貼上「預先填入連結」</label>
+    <textarea id="cfglink" placeholder="https://docs.google.com/forms/d/e/xxxx/viewform?usp=pp_url&entry.111=PROJ&entry.222=TITLE&entry.333=BODY"></textarea>
+    <div style="margin-top:10px;"><button class="btn primary mini" onclick="applyConfig()">套用</button>
+      <span id="cfgmsg" style="margin-left:10px;font-size:13px;color:var(--muue);"></span></div>
+  </details>
+</div>
+
+<footer><p>做創作者,不做抄襲者:AI 給的內容,記得用自己的話改寫再用。🌟</p></footer>
+
+<script>
+  // 老師若要「永久內建」表單,把預先填入連結貼進下面這一行的引號中即可。
+  var BAKED_PREFILL = "https://docs.google.com/forms/d/e/1FAIpQLSc7aQG76kvHZ0KmOtR9ouKXE6BbwUKxAkGmszjYPebgClDiTg/viewform?usp=pp_url&entry.2014740126=PROJ&entry.1540028124=TITLE&entry.1877759882=BODY&entry.1033064028=NAME";
+
+  var CFG = { action:"", proj:"", title:"", body:"", name:"" };
+  var store = [];
+  var TAGCOLOR = {"接接樂遊戲":"#2E86DE","互動故事":"#6C5CE7","其他":"#12B5A5"};
+
+  function parsePrefill(link){
+    try{
+      link=(link||"").trim(); if(!link) return false;
+      var m=link.match(/\/forms\/d\/e\/([^\/]+)\/viewform/);
+      if(!m) return false;
+      var action="https://docs.google.com/forms/d/e/"+m[1]+"/formResponse";
+      var q=(link.split('?')[1]||''); var map={};
+      q.split('&').forEach(function(p){
+        var i=p.indexOf('='); if(i<0) return;
+        var k=p.slice(0,i), v=decodeURIComponent(p.slice(i+1).replace(/\+/g,' '));
+        if(k.indexOf('entry.')===0) map[v]=k;
+      });
+      if(!map['PROJ']||!map['TITLE']||!map['BODY']) return false;
+      CFG={action:action, proj:map['PROJ'], title:map['TITLE'], body:map['BODY'], name:map['NAME']||''};
+      return true;
+    }catch(e){ return false; }
+  }
+  function refreshCloudUI(){
+    var el=document.getElementById('cloudstat');
+    var on=!!CFG.action;
+    el.className='cloudstat '+(on?'cloud-on':'cloud-off');
+    el.innerHTML= on ? '☁️ 已連結老師的 Google 表單 ✅ —— 按「送出」就會自動收進老師雲端。'
+                     : '☁️ 尚未連結老師的 Google 表單 —— 送出功能暫時關閉(老師可到最下面「老師設定」連結表單)。';
+  }
+  function applyConfig(){
+    var ok=parsePrefill(document.getElementById('cfglink').value);
+    document.getElementById('cfgmsg').innerText = ok ? "✅ 已連結表單!學生現在可以送出了。" : "⚠️ 連結看起來不對,請確認是『預先填入連結』且有 PROJ/TITLE/BODY。";
+    refreshCloudUI(); render();
+  }
+
+  function assemble(){
+    var f1=v('f1'),f2=v('f2'),f3=v('f3'),f4=v('f4');
+    var parts=[];
+    if(f1)parts.push(f1); if(f2)parts.push(f2);
+    if(f3)parts.push("限制:"+f3); if(f4)parts.push(f4);
+    return parts.join("\n");
+  }
+  function v(id){return document.getElementById(id).value.trim();}
+  function updatePreview(){
+    var t=assemble(); var p=document.getElementById('preview');
+    p.innerText = t ? t : "（在上面填一填,這裡會自動組合成一段 Prompt）";
+  }
+  ['title','f1','f2','f3','f4'].forEach(function(id){document.getElementById(id).addEventListener('input',updatePreview);});
+  function esc(s){return (s||"").replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');}
+
+  function render(){
+    var box=document.getElementById('cards');
+    document.getElementById('count').innerText="("+store.length+")";
+    if(store.length===0){ box.innerHTML='<div class="empty">還沒有蒐集喔!<br>在左邊填一填,按「加入蒐集」試試看 😊</div>'; return; }
+    box.innerHTML='';
+    store.forEach(function(item,i){
+      var col=TAGCOLOR[item.proj]||"#6C7291";
+      var sendBtn = item.sent ? '<span class="sentbadge">✅ 已送到雲端</span>' : '';
+      var div=document.createElement('div'); div.className='pcard';
+      div.innerHTML='<div class="top"><span class="title">'+esc(item.title||"(未命名)")+'</span>'+
+        '<span class="tag" style="background:'+col+'">'+esc(item.proj)+'</span></div>'+
+        '<div class="body">'+esc(item.text)+'</div>'+
+        '<div class="acts">'+sendBtn+
+          '<button class="btn ghost mini" data-i="'+i+'" data-act="copy">📋 複製</button>'+
+          '<button class="btn red mini" data-i="'+i+'" data-act="del">刪除</button></div>';
+      box.appendChild(div);
+    });
+    box.querySelectorAll('button[data-act]').forEach(function(b){
+      b.addEventListener('click',function(){
+        var i=+b.getAttribute('data-i'), act=b.getAttribute('data-act');
+        if(act==='copy') copyText(store[i].text);
+        else if(act==='del') deleteItem(i);
+        else if(act==='send') submitOne(i);
+      });
+    });
+  }
+
+  var sending=false, sentSigs={};
+  function addPrompt(){
+    if(sending) return;                       // 防連點:送出中不接受再按
+    var text=assemble();
+    if(!text){ alert("先填一填內容再加入喔!"); return; }
+    var who=v('who');
+    var proj=v('proj'), title=v('title');
+    var sig=proj+""+title+""+text;
+    if(CFG.action && sentSigs[sig]){ toast("這則已經送過囉,不用再按一次 😊"); return; }  // 防重複
+    var item={proj:proj,title:title,text:text,sent:false};
+    store.unshift(item);
+    document.getElementById('title').value='';
+    ['f1','f2','f3','f4'].forEach(function(id){document.getElementById(id).value='';});
+    updatePreview(); render();
+    if(CFG.action){
+      sending=true;
+      var btn=document.querySelector('.panel.form button.primary'); if(btn) btn.disabled=true;
+      postToForm(buildFields(item,who)).then(function(){
+        item.sent=true; sentSigs[sig]=true; sending=false;
+        if(btn) btn.disabled=false; render(); toast("已送到雲端 ✅");
+      });
+    } else {
+      toast("已加入(尚未連結雲端,無法送出)");
+    }
+  }
+  function deleteItem(i){
+    var removed=store[i]; store.splice(i,1); render();
+    showUndo("已刪除 1 則", function(){ store.splice(i,0,removed); render(); });
+  }
+
+  // ---- 送出到 Google 表單 ----
+  function buildFields(item, who){
+    var f={};
+    f[CFG.proj]=item.proj; f[CFG.title]=item.title||"(未命名)"; f[CFG.body]=item.text;
+    if(CFG.name && who) f[CFG.name]=who;
+    return f;
+  }
+  function postToForm(fields){
+    return new Promise(function(res){
+      var nm='gf_'+Math.floor(Math.random()*1e9)+'_'+store.length;
+      var iframe=document.createElement('iframe'); iframe.name=nm; iframe.style.display='none';
+      document.body.appendChild(iframe);
+      var f=document.createElement('form'); f.action=CFG.action; f.method='POST'; f.target=nm; f.style.display='none';
+      Object.keys(fields).forEach(function(k){ if(!k) return;
+        var inp=document.createElement('input'); inp.type='hidden'; inp.name=k; inp.value=fields[k]; f.appendChild(inp); });
+      document.body.appendChild(f);
+      var done=false; function fin(){ if(done)return; done=true; try{f.remove();iframe.remove();}catch(e){} res(); }
+      iframe.onload=function(){ setTimeout(fin,120); };
+      setTimeout(fin, 4000); // 保險
+      f.submit();
+    });
+  }
+  function sleep(ms){return new Promise(function(r){setTimeout(r,ms);});}
+  function submitOne(i){
+    if(!CFG.action){ alert("老師還沒連結 Google 表單。"); return; }
+    var who=v('who');
+    postToForm(buildFields(store[i],who)).then(function(){ store[i].sent=true; render(); toast("已送出 ✅"); });
+  }
+  async function submitAll(){
+    if(!CFG.action){ alert("老師還沒連結 Google 表單。請到最下面「老師設定」貼上表單連結。"); return; }
+    var who=v('who');
+    var pending=store.filter(function(x){return !x.sent;});
+    if(pending.length===0){ alert("沒有需要送出的(可能都送過了)。"); return; }
+    for(var i=0;i<store.length;i++){ if(store[i].sent) continue;
+      await postToForm(buildFields(store[i],who)); store[i].sent=true; render(); await sleep(300); }
+    toast("已全部送出到老師雲端 ✅");
+  }
+
+  function copyText(txt){
+    if(!txt) return;
+    if(navigator.clipboard && navigator.clipboard.writeText)
+      navigator.clipboard.writeText(txt).then(function(){toast("已複製!");},function(){fallbackCopy(txt);});
+    else fallbackCopy(txt);
+  }
+  function fallbackCopy(txt){
+    var ta=document.createElement('textarea');ta.value=txt;document.body.appendChild(ta);ta.select();
+    try{document.execCommand('copy');toast("已複製!");}catch(e){alert("複製失敗,請手動選取。");}
+    document.body.removeChild(ta);
+  }
+  function downloadAll(){
+    if(store.length===0){ alert("還沒有可下載的 Prompt 喔!"); return; }
+    var lines=["我的 Prompt 蒐集　(Scratch × Gemini 創作營)","============================\n"];
+    store.forEach(function(it,i){ lines.push((i+1)+". ["+it.proj+"] "+(it.title||"(未命名)")); lines.push(it.text); lines.push("----------------------------\n"); });
+    var blob=new Blob([lines.join("\n")],{type:"text/plain;charset=utf-8"});
+    var a=document.createElement('a'); a.href=URL.createObjectURL(blob); a.download="我的Prompt蒐集.txt";
+    document.body.appendChild(a); a.click(); document.body.removeChild(a);
+  }
+  var undoTimer=null;
+  function showUndo(msg,restoreFn){
+    var old=document.getElementById('undobar'); if(old) old.remove();
+    if(undoTimer) clearTimeout(undoTimer);
+    var bar=document.createElement('div'); bar.id='undobar';
+    bar.style.cssText="position:fixed;left:50%;bottom:24px;transform:translateX(-50%);background:#1E2647;color:#fff;padding:12px 16px;border-radius:14px;display:flex;align-items:center;gap:14px;z-index:99;box-shadow:0 8px 26px rgba(0,0,0,.3);font-weight:700;max-width:92%;";
+    var span=document.createElement('span'); span.innerText="✅ "+msg;
+    var btn=document.createElement('button'); btn.innerText="↩️ 復原";
+    btn.style.cssText="background:#F5A623;color:#1E2647;border:none;border-radius:10px;padding:8px 16px;font-weight:800;cursor:pointer;font-family:inherit;font-size:15px;";
+    btn.onclick=function(){ restoreFn(); bar.remove(); if(undoTimer)clearTimeout(undoTimer); toast("已復原!"); };
+    bar.appendChild(span); bar.appendChild(btn); document.body.appendChild(bar);
+    undoTimer=setTimeout(function(){ if(bar.parentNode) bar.remove(); },12000);
+  }
+  function toast(msg){
+    var t=document.createElement('div'); t.innerText=msg;
+    t.style.cssText="position:fixed;left:50%;bottom:30px;transform:translateX(-50%);background:#1E2647;color:#fff;padding:10px 20px;border-radius:20px;font-weight:800;z-index:99;box-shadow:0 6px 20px rgba(0,0,0,.25);";
+    document.body.appendChild(t);
+    setTimeout(function(){t.style.transition="opacity .4s";t.style.opacity="0";setTimeout(function(){t.remove();},400);},1100);
+  }
+
+  if(BAKED_PREFILL) parsePrefill(BAKED_PREFILL);
+  refreshCloudUI(); updatePreview(); render();
+</script>
+</body>
+</html>
