@@ -105,7 +105,7 @@
       <div class="preview" id="preview">（在上面填一填,這裡會自動組合成一段 Prompt）</div>
       <div class="row" style="margin-top:14px;">
         <button class="btn ghost" style="flex:1" onclick="copyText(document.getElementById('preview').innerText)">📋 複製組合</button>
-        <button class="btn primary" style="flex:1" onclick="addPrompt()">➕ 加入蒐集</button>
+        <button class="btn primary" style="flex:1" onclick="addPrompt()">📤 送出(自動收進雲端)</button>
       </div>
     </div>
 
@@ -115,7 +115,6 @@
       <label>你的名字 / 組別 <span class="hint">(送到老師雲端時會一起送出;選填)</span></label>
       <input id="who" type="text" placeholder="例:五年三班 · 小安">
       <div class="toolbar">
-        <button class="btn blu mini" id="btnSendAll" onclick="submitAll()">📤 全部送出</button>
         <button class="btn teal mini" onclick="downloadAll()">⬇️ 全部下載</button>
         <button class="btn ghost mini" onclick="window.print()">🖨️ 列印</button>
       </div>
@@ -174,9 +173,8 @@
     var el=document.getElementById('cloudstat');
     var on=!!CFG.action;
     el.className='cloudstat '+(on?'cloud-on':'cloud-off');
-    el.innerHTML= on ? '☁️ 已連結老師的 Google 表單 ✅ —— 學生可以按「送出」把 Prompt 收進老師雲端。'
+    el.innerHTML= on ? '☁️ 已連結老師的 Google 表單 ✅ —— 按「送出」就會自動收進老師雲端。'
                      : '☁️ 尚未連結老師的 Google 表單 —— 送出功能暫時關閉(老師可到最下面「老師設定」連結表單)。';
-    document.getElementById('btnSendAll').disabled = !on;
   }
   function applyConfig(){
     var ok=parsePrefill(document.getElementById('cfglink').value);
@@ -206,8 +204,7 @@
     box.innerHTML='';
     store.forEach(function(item,i){
       var col=TAGCOLOR[item.proj]||"#6C7291";
-      var sendBtn = CFG.action ? (item.sent ? '<span class="sentbadge">✅ 已送出</span>'
-                 : '<button class="btn blu mini" data-i="'+i+'" data-act="send">📤 送出</button>') : '';
+      var sendBtn = item.sent ? '<span class="sentbadge">✅ 已送到雲端</span>' : '';
       var div=document.createElement('div'); div.className='pcard';
       div.innerHTML='<div class="top"><span class="title">'+esc(item.title||"(未命名)")+'</span>'+
         '<span class="tag" style="background:'+col+'">'+esc(item.proj)+'</span></div>'+
@@ -227,13 +224,30 @@
     });
   }
 
+  var sending=false, sentSigs={};
   function addPrompt(){
+    if(sending) return;                       // 防連點:送出中不接受再按
     var text=assemble();
     if(!text){ alert("先填一填內容再加入喔!"); return; }
-    store.unshift({proj:v('proj'),title:v('title'),text:text,sent:false});
+    var who=v('who');
+    var proj=v('proj'), title=v('title');
+    var sig=proj+""+title+""+text;
+    if(CFG.action && sentSigs[sig]){ toast("這則已經送過囉,不用再按一次 😊"); return; }  // 防重複
+    var item={proj:proj,title:title,text:text,sent:false};
+    store.unshift(item);
     document.getElementById('title').value='';
     ['f1','f2','f3','f4'].forEach(function(id){document.getElementById(id).value='';});
     updatePreview(); render();
+    if(CFG.action){
+      sending=true;
+      var btn=document.querySelector('.panel.form button.primary'); if(btn) btn.disabled=true;
+      postToForm(buildFields(item,who)).then(function(){
+        item.sent=true; sentSigs[sig]=true; sending=false;
+        if(btn) btn.disabled=false; render(); toast("已送到雲端 ✅");
+      });
+    } else {
+      toast("已加入(尚未連結雲端,無法送出)");
+    }
   }
   function deleteItem(i){
     var removed=store[i]; store.splice(i,1); render();
